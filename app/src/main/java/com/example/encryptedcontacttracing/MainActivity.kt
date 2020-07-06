@@ -13,10 +13,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // TODO:Get Camera Access
+
         val btnGetQR = findViewById<Button>(R.id.btnGetQR)
         val btnViewCodes = findViewById<Button>(R.id.btnViewCodes)
 
-        qrScanIntegrator = IntentIntegrator(this)
+        val qrScanIntegrator = IntentIntegrator(this)
 
         btnGetQR.setOnClickListener {
             val data = qrScanIntegrator.initiateScan()

@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity() {
         val btnViewCodes = findViewById<Button>(R.id.btnViewCodes)
 
         val qrScanIntegrator = IntentIntegrator(this)
+        qrScanIntegrator.setOrientationLocked(false)
 
         btnGetQR.setOnClickListener {
             val data = qrScanIntegrator.initiateScan()

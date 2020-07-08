@@ -9,8 +9,19 @@ import android.widget.TextView
 
 import com.google.zxing.integration.android.IntentIntegrator
 import com.google.zxing.integration.android.IntentResult
+import java.io.BufferedReader
 import java.io.IOException
+import java.io.InputStreamReader
 import java.util.*
+import jdk.nashorn.internal.objects.ArrayBufferView.buffer
+import jdk.nashorn.internal.runtime.ScriptingFunctions.readLine
+import android.R.attr.data
+import sun.text.normalizer.UTF16.append
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -48,11 +59,25 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun makeFile(code:Long, loc:Long) {
-        val contents = code.toString() + "\n" + loc.toString()
+    fun readFile(filename: String):String {
         try {
-            val os = openFileOutput(code.toString(), Context.MODE_PRIVATE)
-            os.write(contents.toByteArray())
+            val buffer = BufferedReader(InputStreamReader(openFileInput(filename)))
+            var data = ""
+            var str = buffer.readLine()
+            while (str != null) {
+                data = data + str + "\n"
+                str = buffer.readLine()
+            }
+            return data
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    fun writeFile(filename:String, content:ByteArray) {
+        try {
+            val os = openFileOutput(filename, Context.MODE_PRIVATE)
+            os.write(content)
             os.close()
             } catch (e: IOException) {
             e.printStackTrace()

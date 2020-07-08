@@ -45,11 +45,26 @@ class MainActivity : AppCompatActivity() {
 
     fun getEncryptCodes(code: Int) {
         val testLabel: TextView = findViewById(R.id.test)
-        val time = System.currentTimeMillis()
+        val time = System.currentTimeMillis() / 300000
         val seed = time * code
         val randomCode = Random(seed).nextLong()
 
+        val test = """1, 2
+            3, 4
+            5, 6
+        """
+        val result = turnFileToMap(test)
+    }
 
+    fun turnFileToMap(file:String): MutableMap<Long, Long> {
+        val kvlist = file.split('\n')
+        var codeMap = mutableMapOf<Long, Long>()
+        for (kv in kvlist) {
+            val key = kv.split(',')[0].trim().toLong()
+            val value = kv.split(',')[1].trim().toLong()
+            codeMap[key] = value
+        }
+        return codeMap
     }
 
     fun readFile(filename: String): String? {

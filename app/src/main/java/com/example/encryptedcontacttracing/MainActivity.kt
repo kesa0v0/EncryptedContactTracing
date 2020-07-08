@@ -13,13 +13,6 @@ import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
 import java.util.*
-import jdk.nashorn.internal.objects.ArrayBufferView.buffer
-import jdk.nashorn.internal.runtime.ScriptingFunctions.readLine
-import android.R.attr.data
-import sun.text.normalizer.UTF16.append
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 
 
 
@@ -59,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun readFile(filename: String):String {
+    fun readFile(filename: String): String? {
         try {
             val buffer = BufferedReader(InputStreamReader(openFileInput(filename)))
             var data = ""
@@ -72,6 +65,7 @@ class MainActivity : AppCompatActivity() {
         } catch (e: IOException) {
             e.printStackTrace()
         }
+        return null
     }
 
     fun writeFile(filename:String, content:ByteArray) {

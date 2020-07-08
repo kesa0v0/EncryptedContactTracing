@@ -49,17 +49,20 @@ class MainActivity : AppCompatActivity() {
         val seed = time * code
         val randomCode = Random(seed).nextLong()
 
-        val test = """1, 2
+        val test = """
+            1, 2
             3, 4
             5, 6
-        """
+            """.trimIndent()
         val result = turnFileToMap(test)
+        testLabel.text = result.toString()
     }
 
     fun turnFileToMap(file:String): MutableMap<Long, Long> {
         val kvlist = file.split('\n')
         var codeMap = mutableMapOf<Long, Long>()
         for (kv in kvlist) {
+            println(kvlist)
             val key = kv.split(',')[0].trim().toLong()
             val value = kv.split(',')[1].trim().toLong()
             codeMap[key] = value

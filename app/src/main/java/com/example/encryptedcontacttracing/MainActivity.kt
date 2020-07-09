@@ -55,10 +55,18 @@ class MainActivity : AppCompatActivity() {
             5, 6
             """.trimIndent()
         val result = turnFileToMap(test)
-        testLabel.text = result.toString()
+        testLabel.text = makeFileContent(result)
     }
 
-    fun turnFileToMap(file:String): MutableMap<Long, Long> {
+    private fun makeFileContent(map: MutableMap<Long, Long>): String {
+        var content:String = ""
+        for ((key, value) in map) {
+            content = "$content$key, $value\n"
+        }
+        return content
+    }
+
+    private fun turnFileToMap(file:String): MutableMap<Long, Long> {
         val kvlist = file.split('\n')
         var codeMap = mutableMapOf<Long, Long>()
         for (kv in kvlist) {

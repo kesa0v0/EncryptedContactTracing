@@ -29,9 +29,22 @@ class MainActivity : AppCompatActivity() {
         val qrScanIntegrator = IntentIntegrator(this)
         qrScanIntegrator.setOrientationLocked(false)
 
+        val tt = TimerTask() {
+            @Override
+            public fun run():Void {
+                println()
+            }
+        }
+
         btnGetQR.setOnClickListener {
             //            val data = qrScanIntegrator.initiateScan()
             getEncryptCodes(1234)
+
+            fun StartPeriod() {
+                val timer = Timer()
+                val interval = 300000
+                timer.schedule()
+            }
         }
     }
 
@@ -43,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun getEncryptCodes(code: Int) {
+    private fun getEncryptCodes(code: Int) {
         val testLabel: TextView = findViewById(R.id.test)
         val time = System.currentTimeMillis() / 300000
         val seed = time * code
@@ -103,4 +116,5 @@ class MainActivity : AppCompatActivity() {
             e.printStackTrace()
         }
     }
+
 }

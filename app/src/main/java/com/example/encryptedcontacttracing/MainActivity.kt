@@ -29,22 +29,9 @@ class MainActivity : AppCompatActivity() {
         val qrScanIntegrator = IntentIntegrator(this)
         qrScanIntegrator.setOrientationLocked(false)
 
-        val tt = TimerTask() {
-            @Override
-            public fun run():Void {
-                println()
-            }
-        }
-
         btnGetQR.setOnClickListener {
             //            val data = qrScanIntegrator.initiateScan()
             getEncryptCodes(1234)
-
-            fun StartPeriod() {
-                val timer = Timer()
-                val interval = 300000
-                timer.schedule()
-            }
         }
     }
 

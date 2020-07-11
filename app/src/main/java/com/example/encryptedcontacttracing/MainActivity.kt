@@ -1,20 +1,26 @@
 package com.example.encryptedcontacttracing
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
 import android.widget.Button
 import android.widget.TextView
-import androidx.core.os.postDelayed
+import androidx.core.app.NotificationCompat
 
 import com.google.zxing.integration.android.IntentIntegrator
 import com.google.zxing.integration.android.IntentResult
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
+import java.nio.channels.NotYetBoundException
 import java.util.*
+
+
+
+
 
 
 
@@ -31,23 +37,10 @@ class MainActivity : AppCompatActivity() {
         val qrScanIntegrator = IntentIntegrator(this)
         qrScanIntegrator.setOrientationLocked(false)
 
-        val handler =  Handler()
-        val delayMillis:Long = 300000
-// Define the code block to be executed
-        val runnableCode = Runnable {
-            @Override
-            fun run() {
-                // Do something here on the main thread
-                // Repeat this the same runnable code block again another 2 seconds
-                // 'this' is referencing the Runnable object
-                handler.postDelayed(this, delayMillis)
-            }
-        }
-
         btnGetQR.setOnClickListener {
             //            val data = qrScanIntegrator.initiateScan()
-            getEncryptCodes(1234)
-            handler.post(runnableCode)
+//            getEncryptCodes(1234)
+            NotifyRecording()
         }
     }
 
@@ -120,4 +113,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun NotifyRecording() {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val builder = NotificationCompat.Builder(this, "10001")
+            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setContentTitle("test")
+            .setContentText("teststes")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+        val channel = NotificationChannel("10001", "Test", NotificationManager.IMPORTANCE_HIGH)
+        notificationManager.createNotificationChannel(channel)
+
+        notificationManager.notify(1234, builder.build())
+    }
 }

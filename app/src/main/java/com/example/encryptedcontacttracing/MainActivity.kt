@@ -3,6 +3,7 @@ package com.example.encryptedcontacttracing
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -121,6 +122,11 @@ class MainActivity : AppCompatActivity() {
         val notificationIntent = Intent(this, MainActivity::class.java)
         notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
+
+        val stopRecordingIntent = Intent(this, StopRecordingBroadcastReceiver::class.java)
+        val stopRecordingPendingIntent: PendingIntent =
+            PendingIntent.getBroadcast(this, 0, stopRecordingIntent, 0)
+
         val builder = NotificationCompat.Builder(this, "10001")
             .setSmallIcon(R.drawable.ic_launcher_background)
             .setContentTitle("다중이용시설에 있습니다")
@@ -128,10 +134,17 @@ class MainActivity : AppCompatActivity() {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
+            .addAction(R.drawable.ic_launcher_background, "STOP", stopRecordingPendingIntent)
 
         val channel = NotificationChannel("10001", "Test", NotificationManager.IMPORTANCE_HIGH)
         notificationManager.createNotificationChannel(channel)
 
         notificationManager.notify(1234, builder.build())
+    }
+
+    class StopRecordingBroadcastReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            println("testing")
+        }
     }
 }

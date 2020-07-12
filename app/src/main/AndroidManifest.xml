@@ -27,6 +27,12 @@
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor"
             tools:replace="screenOrientation" />
+
+        <receiver android:name=".MainActivity$StopRecordingBroadcastReceiver">
+            <intent-filter>
+                <action android:name="example.encryptedcontacttracing.StopRecordingBroadcastReceiver"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

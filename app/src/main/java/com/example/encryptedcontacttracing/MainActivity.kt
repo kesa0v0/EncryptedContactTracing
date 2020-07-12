@@ -17,6 +17,7 @@ import com.google.zxing.integration.android.IntentResult
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
+import java.sql.Time
 import java.util.*
 
 
@@ -142,9 +143,22 @@ class MainActivity : AppCompatActivity() {
         notificationManager.notify(1234, builder.build())
     }
 
+    fun StopRecording(){
+
+    }
+
     class StopRecordingBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             println("testing")
+        }
+    }
+
+    class RecordTime {
+        var startTime = System.currentTimeMillis()
+        var stopTime = System.currentTimeMillis()
+
+        fun recordStartTime(){
+
         }
     }
 }

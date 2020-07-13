@@ -17,7 +17,6 @@ import com.google.zxing.integration.android.IntentResult
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
-import java.sql.Time
 import java.util.*
 
 
@@ -30,6 +29,7 @@ import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
+    private val timer = RecordTime()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         btnGetQR.setOnClickListener {
             //            val data = qrScanIntegrator.initiateScan()
 //            getEncryptCodes(1234)
+            timer.startTime = System.currentTimeMillis();
             notifyRecording()
         }
     }
@@ -144,7 +145,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun StopRecording(){
-
+        timer.stopTime = System.currentTimeMillis()
     }
 
     class StopRecordingBroadcastReceiver : BroadcastReceiver() {
@@ -156,9 +157,5 @@ class MainActivity : AppCompatActivity() {
     class RecordTime {
         var startTime = System.currentTimeMillis()
         var stopTime = System.currentTimeMillis()
-
-        fun recordStartTime(){
-
-        }
     }
 }

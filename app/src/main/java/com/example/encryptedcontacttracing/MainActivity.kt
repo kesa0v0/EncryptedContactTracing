@@ -144,8 +144,13 @@ class MainActivity : AppCompatActivity() {
         notificationManager.notify(1234, builder.build())
     }
 
+    private fun generateCodes(startTime:Long, endTime:Long) {
+
+    }
+
     fun StopRecording(){
-        timer.stopTime = System.currentTimeMillis()
+        timer.endTime = System.currentTimeMillis()
+        val result = generateCodes(timer.startTime, timer.endTime)
     }
 
     class StopRecordingBroadcastReceiver : BroadcastReceiver() {
@@ -156,6 +161,6 @@ class MainActivity : AppCompatActivity() {
 
     class RecordTime {
         var startTime = System.currentTimeMillis()
-        var stopTime = System.currentTimeMillis()
+        var endTime = System.currentTimeMillis()
     }
 }

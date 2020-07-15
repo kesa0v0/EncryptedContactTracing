@@ -13,12 +13,10 @@ import androidx.core.app.NotificationCompat
 
 import com.google.zxing.integration.android.IntentIntegrator
 import com.google.zxing.integration.android.IntentResult
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
 import java.security.MessageDigest
 import java.util.*
 import kotlin.experimental.and
+import java.io.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -39,39 +37,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     inner class CodeFile {   // 14일치의 코드를 저장하는데 사용할 큐 + 파일
+        private val filename = "data"
         var codeQueue:Queue<String> = LinkedList()
 
         fun loadCodesfromFile() {
-
+            try {
+                val buffer = BufferedReader(InputStreamReader(openFileInput(filename)))
+                var str = buffer.readLine()
+                while (str != null) {
+                    codeQueue.offer(str)
+                    str = buffer.readLine()
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
         }
         fun saveCodestoFile(){
-
-        }
-    }
-
-    fun readFile(filename: String): String? {
-        try {
-            val buffer = BufferedReader(InputStreamReader(openFileInput(filename)))
-            var data = ""
-            var str = buffer.readLine()
-            while (str != null) {
-                data = data + str + "\n"
-                str = buffer.readLine()
+            try {
+                val os = openFileOutput(filename, Context.MODE_PRIVATE)
+                while (codeQueue.peek() != null) {
+                    os.write(codeQueue.poll().toString().toByteArray())
+                }
+                os.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
-            return data
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return null
-    }
-
-    fun writeFile(filename:String, content:ByteArray) {
-        try {
-            val os = openFileOutput(filename, Context.MODE_PRIVATE)
-            os.write(content)
-            os.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
         }
     }
 

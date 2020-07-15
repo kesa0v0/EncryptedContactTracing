@@ -20,13 +20,11 @@ import java.io.*
 
 
 
-
 class RecordTime {
     var startTime = System.currentTimeMillis()
     var endTime = System.currentTimeMillis()
     var placeCode:Long = 0
 }
-
 private val timer = RecordTime()
 
 class MainActivity : AppCompatActivity() {
@@ -92,9 +90,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun notifyRecording() {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+    private fun notifyRecording() {
         val notificationIntent = Intent(this, MainActivity::class.java)
         notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
@@ -116,20 +114,22 @@ class MainActivity : AppCompatActivity() {
         notificationManager.createNotificationChannel(channel)
 
         notificationManager.notify(1234, builder.build())
+
     }
 }
+
+val stop = StopRecording()
 
 class StopRecordingBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         println("testing")
-        val stop = StopRecording()
         stop.stopRecording()
     }
 }
 
 class StopRecording{
     fun stopRecording() {
-
+        notificationManager.cancel(1234)
         timer.endTime = System.currentTimeMillis()
         val timeInterval = 300000
         val result = generateCodes(

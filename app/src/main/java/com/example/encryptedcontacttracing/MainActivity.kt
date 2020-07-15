@@ -82,6 +82,10 @@ class MainActivity : AppCompatActivity() {
             timer.placeCode = 1234
             notifyRecording()
         }
+        btnViewCodes.setOnClickListener {
+            val showCodesActivityIntent = Intent(this, ShowCodes::class.java)
+            startActivity(showCodesActivityIntent)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

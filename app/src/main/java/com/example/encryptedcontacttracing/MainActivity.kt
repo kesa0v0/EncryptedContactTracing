@@ -27,6 +27,8 @@ class RecordTime {
 }
 private val timer = RecordTime()
 
+private lateinit var notificationManager:NotificationManager
+
 class MainActivity : AppCompatActivity() {
     val queue = CodeFile()
 
@@ -90,9 +92,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
     private fun notifyRecording() {
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
         val notificationIntent = Intent(this, MainActivity::class.java)
         notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
@@ -123,12 +125,12 @@ val stop = StopRecording()
 class StopRecordingBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         println("testing")
-        stop.stopRecording()
+        stop.stopRecording(notificationManager)
     }
 }
 
 class StopRecording{
-    fun stopRecording() {
+    fun stopRecording(notificationManager:NotificationManager) {
         notificationManager.cancel(1234)
         timer.endTime = System.currentTimeMillis()
         val timeInterval = 300000

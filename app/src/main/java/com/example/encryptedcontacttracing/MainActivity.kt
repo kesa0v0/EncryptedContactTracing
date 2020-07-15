@@ -19,13 +19,7 @@ import kotlin.experimental.and
 import java.io.*
 
 
-class StopRecordingBroadcastReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context?, intent: Intent?) {
-        println("testing")
-        val stop = MainActivity.StopRecording()
-        stop.stopRecording()
-    }
-}
+
 
 class RecordTime {
     var startTime = System.currentTimeMillis()
@@ -37,7 +31,6 @@ private val timer = RecordTime()
 
 class MainActivity : AppCompatActivity() {
     val queue = CodeFile()
-
 
     inner class CodeFile {   // 14일치의 코드를 저장하는데 사용할 큐 + 파일
         private val filename = "data"
@@ -124,36 +117,43 @@ class MainActivity : AppCompatActivity() {
 
         notificationManager.notify(1234, builder.build())
     }
+}
 
+class StopRecordingBroadcastReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context?, intent: Intent?) {
+        println("testing")
+        val stop = StopRecording()
+        stop.stopRecording()
+    }
+}
 
-    class StopRecording(){
-        fun stopRecording() {
+class StopRecording{
+    fun stopRecording() {
 
-            timer.endTime = System.currentTimeMillis()
-            val timeInterval = 300000
-            val result = generateCodes(
-                timer.startTime % timeInterval,
-                timer.endTime % timeInterval,
-                timer.placeCode
-            )
+        timer.endTime = System.currentTimeMillis()
+        val timeInterval = 300000
+        val result = generateCodes(
+            timer.startTime % timeInterval,
+            timer.endTime % timeInterval,
+            timer.placeCode
+        )
+    }
+
+    private fun generateCodes(startTime:Long, endTime:Long, placeCode:Long): MutableList<String> {
+        val codelist = mutableListOf<String>()
+        for (time in startTime..endTime) {
+            codelist.add(getEncrypt((time*placeCode).toString()))
         }
+        return codelist
+    }
 
-        private fun generateCodes(startTime:Long, endTime:Long, placeCode:Long): MutableList<String> {
-            val codelist = mutableListOf<String>()
-            for (time in startTime..endTime) {
-                codelist.add(getEncrypt((time*placeCode).toString()))
-            }
-            return codelist
+    private fun getEncrypt(target:String) : String{
+        val md = MessageDigest.getInstance("SHA-256")
+        val digest = md.digest(target.toByteArray())
+        val sb = StringBuilder()
+        for (i in digest.indices) {
+            sb.append(((digest[i] and 0xff.toByte()) + 0x100).toString(16).substring(1))
         }
-
-        private fun getEncrypt(target:String) : String{
-            val md = MessageDigest.getInstance("SHA-256")
-            val digest = md.digest(target.toByteArray())
-            val sb = StringBuilder()
-            for (i in digest.indices) {
-                sb.append(((digest[i] and 0xff.toByte()) + 0x100).toString(16).substring(1))
-            }
-            return sb.toString()
-        }
+        return sb.toString()
     }
 }

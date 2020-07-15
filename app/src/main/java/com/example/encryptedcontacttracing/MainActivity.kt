@@ -9,7 +9,6 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
-import android.widget.TextView
 import androidx.core.app.NotificationCompat
 
 import com.google.zxing.integration.android.IntentIntegrator
@@ -17,79 +16,37 @@ import com.google.zxing.integration.android.IntentResult
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
+import java.security.MessageDigest
 import java.util.*
-
-
-
-
-
-
-
-
+import kotlin.experimental.and
 
 
 class MainActivity : AppCompatActivity() {
     private val timer = RecordTime()
+    val queue = CodeFile()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        val btnGetQR = findViewById<Button>(R.id.btnGetQR)
-        val btnViewCodes = findViewById<Button>(R.id.btnViewCodes)
-
-        val qrScanIntegrator = IntentIntegrator(this)
-        qrScanIntegrator.setOrientationLocked(false)
-
-        btnGetQR.setOnClickListener {
-            //            val data = qrScanIntegrator.initiateScan()
-//            getEncryptCodes(1234)
-            timer.startTime = System.currentTimeMillis();
-            notifyRecording()
+    inner class StopRecordingBroadcastReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            println("testing")
+            stopRecording()
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == IntentIntegrator.REQUEST_CODE) {
-            val result: IntentResult =
-                IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
-        }
+    inner class RecordTime {
+        var startTime = System.currentTimeMillis()
+        var endTime = System.currentTimeMillis()
+        var placeCode:Long = 0
     }
 
-    private fun getEncryptCodes(code: Int) {
-        val testLabel: TextView = findViewById(R.id.test)
-        val time = System.currentTimeMillis() / 300000
-        val seed = time * code
-        val randomCode = Random(seed).nextLong()
+    inner class CodeFile {   // 14일치의 코드를 저장하는데 사용할 큐 + 파일
+        var codeQueue:Queue<String> = LinkedList()
 
-        val test = """
-            1, 2
-            3, 4
-            5, 6
-            """.trimIndent()
-        val result = turnFileToMap(test)
-        testLabel.text = makeFileContent(result)
-    }
+        fun loadCodesfromFile() {
 
-    private fun makeFileContent(map: MutableMap<Long, Long>): String {
-        var content:String = ""
-        for ((key, value) in map) {
-            content = "$content$key, $value\n"
         }
-        return content
-    }
+        fun saveCodestoFile(){
 
-    private fun turnFileToMap(file:String): MutableMap<Long, Long> {
-        val kvlist = file.split('\n')
-        var codeMap = mutableMapOf<Long, Long>()
-        for (kv in kvlist) {
-            println(kvlist)
-            val key = kv.split(',')[0].trim().toLong()
-            val value = kv.split(',')[1].trim().toLong()
-            codeMap[key] = value
         }
-        return codeMap
     }
 
     fun readFile(filename: String): String? {
@@ -113,8 +70,35 @@ class MainActivity : AppCompatActivity() {
             val os = openFileOutput(filename, Context.MODE_PRIVATE)
             os.write(content)
             os.close()
-            } catch (e: IOException) {
+        } catch (e: IOException) {
             e.printStackTrace()
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val btnGetQR = findViewById<Button>(R.id.btnGetQR)
+        val btnViewCodes = findViewById<Button>(R.id.btnViewCodes)
+
+        val qrScanIntegrator = IntentIntegrator(this)
+        qrScanIntegrator.setOrientationLocked(false)
+
+        btnGetQR.setOnClickListener {
+            //            val data = qrScanIntegrator.initiateScan()
+//            getEncryptCodes(1234)
+            timer.startTime = System.currentTimeMillis()
+            timer.placeCode = 1234
+            notifyRecording()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == IntentIntegrator.REQUEST_CODE) {
+            val result: IntentResult =
+                IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
         }
     }
 
@@ -144,23 +128,32 @@ class MainActivity : AppCompatActivity() {
         notificationManager.notify(1234, builder.build())
     }
 
-    private fun generateCodes(startTime:Long, endTime:Long) {
-
-    }
-
-    fun StopRecording(){
-        timer.endTime = System.currentTimeMillis()
-        val result = generateCodes(timer.startTime, timer.endTime)
-    }
-
-    class StopRecordingBroadcastReceiver : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            println("testing")
+    private fun getEncrypt(target:String) : String{
+        val md = MessageDigest.getInstance("SHA-256")
+        val digest = md.digest(target.toByteArray())
+        val sb = StringBuilder()
+        for (i in digest.indices) {
+            sb.append(((digest[i] and 0xff.toByte()) + 0x100).toString(16).substring(1))
         }
+        return sb.toString()
     }
 
-    class RecordTime {
-        var startTime = System.currentTimeMillis()
-        var endTime = System.currentTimeMillis()
+    private fun generateCodes(startTime:Long, endTime:Long, placeCode:Long): MutableList<String> {
+        val codelist = mutableListOf<String>()
+        for (time in startTime..endTime) {
+            codelist.add(getEncrypt((time*placeCode).toString()))
+        }
+        return codelist
+    }
+
+    fun stopRecording(){
+        timer.endTime = System.currentTimeMillis()
+        val timeInterval = 300000
+        val result = generateCodes(
+            timer.startTime%timeInterval,
+            timer.endTime%timeInterval,
+                    timer.placeCode
+            )
+
     }
 }

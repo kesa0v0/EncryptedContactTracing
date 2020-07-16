@@ -20,6 +20,7 @@ import java.io.Serializable
 import java.security.MessageDigest
 import java.util.*
 import kotlin.experimental.and
+import com.example.encryptedcontacttracing.Alert as Alert
 
 
 class RecordTime {
@@ -94,6 +95,7 @@ class MainActivity : AppCompatActivity() {
 
         codeQueueManager = CodeQueueManager()
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val alert = Alert(codeQueueManager, notificationManager)
 
         if (codeQueueManager.codeQueue.size == 0) {
             codeQueueManager.loadCodesfromFile()
@@ -112,7 +114,8 @@ class MainActivity : AppCompatActivity() {
             startActivity(showCodesActivityIntent)
         }
         testremove.setOnClickListener{
-            codeQueueManager.clearQueue()
+//            codeQueueManager.clearQueue()
+            alert.loadFromFile()
         }
     }
 

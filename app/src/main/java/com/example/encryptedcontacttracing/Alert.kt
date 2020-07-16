@@ -1,16 +1,21 @@
 package com.example.encryptedcontacttracing
 
-class Alert {
-    fun loadFromDB() {
+import android.app.NotificationManager
 
-    }
-    fun loadFromFile(){
 
-    }
-    fun update() {
-
+class Alert(codeQueueManager: MainActivity.CodeQueueManager, notificationManager: NotificationManager) {
+    fun loadFromDB():Set<String> {
+        return
     }
     fun showNotify() {
 
+    }
+    fun update() {
+        val fileCodes = codeQueueManager.codeQueue.toSet()
+        val DBCodes = loadFromDB()
+
+        if ((fileCodes - (fileCodes + DBCodes)).isNotEmpty()) {
+            showNotify()
+        }
     }
 }

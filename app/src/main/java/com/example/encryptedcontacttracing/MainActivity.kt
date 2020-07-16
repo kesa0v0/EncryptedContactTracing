@@ -16,6 +16,7 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
 import java.io.InputStreamReader
+import java.io.Serializable
 import java.security.MessageDigest
 import java.util.*
 import kotlin.experimental.and
@@ -30,10 +31,10 @@ class RecordTime {
 private val timer = RecordTime()
 
 private lateinit var notificationManager:NotificationManager
-lateinit var codeQueueManager:MainActivity. CodeFile
+lateinit var codeQueueManager:MainActivity.CodeQueueManager
 
 class MainActivity : AppCompatActivity() {
-    inner class CodeFile {   // 14일치의 코드를 저장하는데 사용할 큐 + 파일
+    inner class CodeQueueManager {   // 14일치의 코드를 저장하는데 사용할 큐 + 파일
         private val filename = "data"
         var codeQueue:Queue<String> = LinkedList()
 
@@ -91,7 +92,7 @@ class MainActivity : AppCompatActivity() {
         val qrScanIntegrator = IntentIntegrator(this)
         qrScanIntegrator.setOrientationLocked(false)
 
-        codeQueueManager = CodeFile()
+        codeQueueManager = CodeQueueManager()
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (codeQueueManager.codeQueue.size == 0) {
@@ -107,6 +108,7 @@ class MainActivity : AppCompatActivity() {
         }
         btnViewCodes.setOnClickListener {
             val showCodesActivityIntent = Intent(this, ShowCodes::class.java)
+                .putExtra("queue", codeQueueManager.codeQueue.joinToString("\n"))
             startActivity(showCodesActivityIntent)
         }
         testremove.setOnClickListener{

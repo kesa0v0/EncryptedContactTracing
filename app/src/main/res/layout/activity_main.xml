@@ -36,4 +36,12 @@
         tools:layout_editor_absoluteX="172dp"
         tools:layout_editor_absoluteY="271dp" />
 
+    <Button
+        android:id="@+id/testremove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="testremove"
+        tools:layout_editor_absoluteX="157dp"
+        tools:layout_editor_absoluteY="56dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

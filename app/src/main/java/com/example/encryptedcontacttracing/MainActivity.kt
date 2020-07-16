@@ -6,18 +6,19 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
-
 import com.google.zxing.integration.android.IntentIntegrator
 import com.google.zxing.integration.android.IntentResult
+import java.io.BufferedReader
+import java.io.File
+import java.io.IOException
+import java.io.InputStreamReader
 import java.security.MessageDigest
 import java.util.*
 import kotlin.experimental.and
-import java.io.*
-
 
 
 class RecordTime {
@@ -25,17 +26,26 @@ class RecordTime {
     var endTime = System.currentTimeMillis()
     var placeCode:Long = 0
 }
+
 private val timer = RecordTime()
 
 private lateinit var notificationManager:NotificationManager
+lateinit var codeQueueManager:MainActivity. CodeFile
 
 class MainActivity : AppCompatActivity() {
-    val queue = CodeFile()
-
     inner class CodeFile {   // 14일치의 코드를 저장하는데 사용할 큐 + 파일
         private val filename = "data"
         var codeQueue:Queue<String> = LinkedList()
 
+        fun addItems(itemList:MutableList<String>) {
+            for (item in itemList) {
+                codeQueue.offer(item)
+                if (codeQueue.size > 4032) {
+                    codeQueue.poll()
+                }
+            }
+            codeQueueManager.saveCodestoFile()
+        }
         fun loadCodesfromFile() {
             try {
                 val buffer = BufferedReader(InputStreamReader(openFileInput(filename)))
@@ -48,15 +58,24 @@ class MainActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
         }
-        fun saveCodestoFile(){
+        private fun saveCodestoFile(){
+            val copiedQueue = codeQueue.toMutableList()
+            val myFile = File(filename)
+            if (myFile.exists()) {
+                myFile.delete()
+                println ("deleted file")
+            }
             try {
                 val os = openFileOutput(filename, Context.MODE_PRIVATE)
-                while (codeQueue.peek() != null) {
-                    os.write(codeQueue.poll().toString().toByteArray())
-                }
+                os.write(copiedQueue.joinToString("\n").toByteArray())
                 os.close()
             } catch (e: IOException) {
                 e.printStackTrace()
+            }
+        }
+        fun clearQueue() {
+            while (codeQueue.size > 0) {
+                codeQueue.remove()
             }
         }
     }
@@ -67,20 +86,31 @@ class MainActivity : AppCompatActivity() {
 
         val btnGetQR = findViewById<Button>(R.id.btnGetQR)
         val btnViewCodes = findViewById<Button>(R.id.btnViewCodes)
+        val testremove = findViewById<Button>(R.id.testremove)
 
         val qrScanIntegrator = IntentIntegrator(this)
         qrScanIntegrator.setOrientationLocked(false)
 
+        codeQueueManager = CodeFile()
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (codeQueueManager.codeQueue.size == 0) {
+            codeQueueManager.loadCodesfromFile()
+        }
+
         btnGetQR.setOnClickListener {
             //            val data = qrScanIntegrator.initiateScan()
-//            getEncryptCodes(1234)
             timer.startTime = System.currentTimeMillis()
             timer.placeCode = 1234
             notifyRecording()
+            // TODO: DeleteThese
         }
         btnViewCodes.setOnClickListener {
             val showCodesActivityIntent = Intent(this, ShowCodes::class.java)
             startActivity(showCodesActivityIntent)
+        }
+        testremove.setOnClickListener{
+            codeQueueManager.clearQueue()
         }
     }
 
@@ -89,12 +119,13 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == IntentIntegrator.REQUEST_CODE) {
             val result: IntentResult =
                 IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
+            timer.startTime = System.currentTimeMillis()
+            timer.placeCode = result.contents.toLong()
+            notifyRecording()
         }
     }
 
     private fun notifyRecording() {
-        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
         val notificationIntent = Intent(this, MainActivity::class.java)
         notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
@@ -133,18 +164,23 @@ class StopRecording{
     fun stopRecording(notificationManager:NotificationManager) {
         notificationManager.cancel(1234)
         timer.endTime = System.currentTimeMillis()
-        val timeInterval = 300000
+        val timeInterval = 1000//300000
+        println("start:${timer.startTime/timeInterval}\nend:${timer.endTime/timeInterval}")
+
         val result = generateCodes(
-            timer.startTime % timeInterval,
-            timer.endTime % timeInterval,
+            timer.startTime / timeInterval,
+            timer.endTime / timeInterval,
             timer.placeCode
         )
+        codeQueueManager.addItems(result)
     }
 
     private fun generateCodes(startTime:Long, endTime:Long, placeCode:Long): MutableList<String> {
         val codelist = mutableListOf<String>()
         for (time in startTime..endTime) {
-            codelist.add(getEncrypt((time*placeCode).toString()))
+            val code = getEncrypt((time*placeCode).toString())
+            codelist.add(code)
+            println("time:$time\ncode:$code")
         }
         return codelist
     }

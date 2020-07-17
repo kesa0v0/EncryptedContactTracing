@@ -19,15 +19,14 @@ class DatabaseManager(codeQueueManager: MainActivity.CodeQueueManager, notificat
         val dbCodes = setOf<String>("2d71332250477ef676955ce6c057b384fdb5106957676c284f627c2f",
         "2d38631e46b172a416a794d20f2c3d4c16e53b413dca1")
         if (dbCodes != null){
-            println(dbCodes)
-            println(dbCodes.javaClass.name)
             val dbCodesSet = dbCodes.toSet()
             val fileCodes = codeQueueManager.codeQueue.toSet()
+            val intersection = fileCodes - (fileCodes - dbCodesSet)
             println("DBCode: $dbCodesSet")
             println("FileCode: $fileCodes")
-            println("/\\: ${fileCodes - (fileCodes - dbCodesSet)}")
+            println("/\\: $intersection")
 
-            if ((fileCodes - (fileCodes + dbCodesSet)).isEmpty()) {
+            if (intersection.isNotEmpty()) {
                 showNotify()
             }
         }
@@ -49,11 +48,12 @@ class DatabaseManager(codeQueueManager: MainActivity.CodeQueueManager, notificat
     fun sendToDB(codes:List<String>){
         database.child("Infected").setValue(codes)
     }
-    fun showNotify() {
-        // TODO : Show Notification
-        println("Notify")
-    }
     fun update() {
         checkInfect()
+    }
+    private fun showNotify() {
+        // TODO : Show Notification
+        println("Notify")
+
     }
 }

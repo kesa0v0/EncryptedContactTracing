@@ -16,8 +16,8 @@ import com.google.firebase.ktx.Firebase
 
 class DatabaseManager(private val context: Context) {
     private lateinit var dataSnapshot:DataSnapshot
-    private val database = Firebase.database.reference
-    private val postListener = object : ValueEventListener {
+    private val database = Firebase.database.reference.child("Infected")
+    private val codeListener = object : ValueEventListener {
         override fun onDataChange(Snapshot: DataSnapshot) {
             dataSnapshot = Snapshot
             checkInfect()
@@ -28,25 +28,29 @@ class DatabaseManager(private val context: Context) {
         }
     }
     fun checkInfect(){
-        val listIndicator = object: GenericTypeIndicator<List<String>>(){}
-        val dbCodes = dataSnapshot.child("Infected").getValue(listIndicator)
-        if (dbCodes != null){
-            val dbCodesSet = dbCodes.toSet()
-            val fileCodes = codeQueueManager.codeQueue.toSet()
-            val intersection = fileCodes - (fileCodes - dbCodesSet)
-
-            if (intersection.isNotEmpty()) {
-                showNotify()
-            } else {
-                Toast.makeText(context, "없음", Toast.LENGTH_SHORT).show()
+        val db = dataSnapshot
+        val dbCodes = mutableSetOf<String>()
+        for (child in db.children) {
+            if (child!=null && child.value!= null){
+                dbCodes.addAll(child.value as Collection<String>)
             }
+        }
+        println(dbCodes)
+        val dbCodesSet = dbCodes.toSet()
+        val fileCodes = codeQueueManager.codeQueue.toSet()
+        val intersection = fileCodes - (fileCodes - dbCodesSet)
+
+        if (intersection.isNotEmpty()) {
+            showNotify()
+        } else {
+            Toast.makeText(context, "없음", Toast.LENGTH_SHORT).show()
         }
     }
     fun loadFromDB() {
-        database.addValueEventListener(postListener)
-    }
+            database.addValueEventListener(codeListener)
+        }
     fun sendToDB(codes:List<String>){
-        database.child("Infected").setValue(codes)
+        database.push().setValue(codes)
         Toast.makeText(context, "Sent", Toast.LENGTH_SHORT).show()
     }
     fun update() {

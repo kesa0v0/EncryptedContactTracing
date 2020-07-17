@@ -6,13 +6,16 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.google.zxing.integration.android.IntentIntegrator
 import com.google.zxing.integration.android.IntentResult
+import kotlinx.android.synthetic.main.activity_main.*
 import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
@@ -33,6 +36,9 @@ private val timer = RecordTime()
 
 lateinit var notificationManager:NotificationManager
 lateinit var codeQueueManager:MainActivity.CodeQueueManager
+lateinit var purpleBox:View
+lateinit var codebtnGetQR:Button
+var btnGetQRIsPressed = false
 
 
 class MainActivity : AppCompatActivity() {
@@ -88,11 +94,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val btnGetQR = findViewById<Button>(R.id.btnGetQR)
+        codebtnGetQR = findViewById<Button>(R.id.btnGetQR)
+        btnGetQR
         val btnViewCodes = findViewById<Button>(R.id.btnViewCodes)
         val testremove = findViewById<Button>(R.id.testremove)
         val testupload = findViewById<Button>(R.id.dbupload)
         val testdownload = findViewById<Button>(R.id.dbdownload)
+        purpleBox = findViewById<View>(R.id.box)
 
         val qrScanIntegrator = IntentIntegrator(this)
         qrScanIntegrator.setOrientationLocked(false)
@@ -106,8 +114,14 @@ class MainActivity : AppCompatActivity() {
             codeQueueManager.loadCodesfromFile()
         }
 
-        btnGetQR.setOnClickListener {
-            val data = qrScanIntegrator.initiateScan()
+        codebtnGetQR.setOnClickListener {
+            if (btnGetQRIsPressed) {
+                val stopRecordingIntent = Intent(this, StopRecordingBroadcastReceiver::class.java)
+                sendBroadcast(stopRecordingIntent)
+            }
+            else{
+                qrScanIntegrator.initiateScan()
+            }
         }
         btnViewCodes.setOnClickListener {
             val showCodesActivityIntent = Intent(this, ShowCodes::class.java)
@@ -133,9 +147,13 @@ class MainActivity : AppCompatActivity() {
             val result: IntentResult =
                 IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
             try {
-            timer.startTime = System.currentTimeMillis()
-            timer.placeCode = result.contents.toLong()
-            notifyRecording()
+                timer.startTime = System.currentTimeMillis()
+                timer.placeCode = result.contents.toLong()
+                notifyRecording()
+                box.setBackgroundColor(Color.rgb(114,137,218))
+
+                btnGetQRIsPressed = true
+                codebtnGetQR.text = "STOP"
             } catch (e: NumberFormatException) {
                 val toastText = "올바르지 않은 QR코드입니다"
                 Toast.makeText(this, toastText, Toast.LENGTH_LONG).show()
@@ -181,7 +199,7 @@ class StopRecording{
     fun stopRecording(notificationManager:NotificationManager) {
         notificationManager.cancel(10001)
         timer.endTime = System.currentTimeMillis()
-        val timeInterval = 1000//300000
+        val timeInterval = 1000 //300000
 
         val result = generateCodes(
             timer.startTime / timeInterval,
@@ -189,6 +207,10 @@ class StopRecording{
             timer.placeCode
         )
         codeQueueManager.addItems(result)
+
+        purpleBox.setBackgroundColor(Color.rgb(35,39,42))
+        btnGetQRIsPressed = false
+        codebtnGetQR.text = "QR코드 찍기"
     }
 
     private fun generateCodes(startTime:Long, endTime:Long, placeCode:Long): MutableList<String> {

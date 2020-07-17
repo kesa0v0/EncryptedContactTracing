@@ -4,56 +4,84 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
     tools:context=".MainActivity">
 
     <Button
         android:id="@+id/btnGetQR"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="250dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="144dp"
+        android:backgroundTint="@color/colorPrimary"
         android:text="@string/qr"
-        app:layout_constraintBottom_toTopOf="@+id/btnViewCodes"
+        android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/btnViewCodes"
-        android:layout_width="wrap_content"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="157dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="166dp"
+        android:backgroundTint="@color/colorPrimary"
         android:text="@string/viewcodes"
+        android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.475"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnGetQR" />
+        app:layout_constraintTop_toBottomOf="@+id/box"
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/testremove"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorPrimary"
         android:text="testremove"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toTopOf="@+id/dbupload"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintHorizontal_bias="0.471"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/dbupload"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:backgroundTint="@color/colorPrimary"
         android:text="Testupload"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toTopOf="@+id/dbdownload"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/testremove" />
+        app:layout_constraintHorizontal_bias="0.478"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/dbdownload"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorPrimary"
         android:text="Testupdate"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.476"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:id="@+id/box"
+        android:layout_width="250dp"
+        android:layout_height="16dp"
+        android:layout_marginTop="32dp"
+        android:background="@color/colorPrimaryDark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dbupload" />
+        app:layout_constraintTop_toBottomOf="@+id/btnGetQR" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

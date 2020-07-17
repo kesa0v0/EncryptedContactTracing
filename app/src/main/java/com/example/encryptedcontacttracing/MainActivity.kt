@@ -16,11 +16,9 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
 import java.io.InputStreamReader
-import java.io.Serializable
 import java.security.MessageDigest
 import java.util.*
 import kotlin.experimental.and
-import com.example.encryptedcontacttracing.Alert as Alert
 
 
 class RecordTime {
@@ -33,6 +31,7 @@ private val timer = RecordTime()
 
 private lateinit var notificationManager:NotificationManager
 lateinit var codeQueueManager:MainActivity.CodeQueueManager
+
 
 class MainActivity : AppCompatActivity() {
     inner class CodeQueueManager {   // 14일치의 코드를 저장하는데 사용할 큐 + 파일
@@ -89,13 +88,16 @@ class MainActivity : AppCompatActivity() {
         val btnGetQR = findViewById<Button>(R.id.btnGetQR)
         val btnViewCodes = findViewById<Button>(R.id.btnViewCodes)
         val testremove = findViewById<Button>(R.id.testremove)
+        val testupload = findViewById<Button>(R.id.dbupload)
+        val testdownload = findViewById<Button>(R.id.dbdownload)
 
         val qrScanIntegrator = IntentIntegrator(this)
         qrScanIntegrator.setOrientationLocked(false)
 
         codeQueueManager = CodeQueueManager()
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val alert = Alert(codeQueueManager, notificationManager)
+        val alert = DatabaseManager(codeQueueManager, notificationManager)
+        alert.update()
 
         if (codeQueueManager.codeQueue.size == 0) {
             codeQueueManager.loadCodesfromFile()
@@ -113,9 +115,15 @@ class MainActivity : AppCompatActivity() {
                 .putExtra("queue", codeQueueManager.codeQueue.joinToString("\n"))
             startActivity(showCodesActivityIntent)
         }
+
         testremove.setOnClickListener{
-//            codeQueueManager.clearQueue()
-            alert.loadFromFile()
+            codeQueueManager.clearQueue()
+        }
+        testdownload.setOnClickListener{
+            alert.loadFromDB()
+        }
+        testupload.setOnClickListener{
+            alert.sendtoDB(codeQueueManager.codeQueue.toList())
         }
     }
 

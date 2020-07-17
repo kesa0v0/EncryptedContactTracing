@@ -4,8 +4,9 @@
     package="com.example.encryptedcontacttracing">
 
     <uses-permission android:name="android.permission.CAMERA" />
-
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-feature android:name="android.hardware.camera" />
+
 
     <application
         android:allowBackup="true"

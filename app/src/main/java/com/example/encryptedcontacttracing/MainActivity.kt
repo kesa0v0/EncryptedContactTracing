@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
         codeQueueManager = CodeQueueManager()
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val alert = DatabaseManager(codeQueueManager, notificationManager)
-        alert.update()
+        alert.loadFromDB()
 
         if (codeQueueManager.codeQueue.size == 0) {
             codeQueueManager.loadCodesfromFile()
@@ -120,10 +120,10 @@ class MainActivity : AppCompatActivity() {
             codeQueueManager.clearQueue()
         }
         testdownload.setOnClickListener{
-            alert.loadFromDB()
+            alert.update()
         }
         testupload.setOnClickListener{
-            alert.sendtoDB(codeQueueManager.codeQueue.toList())
+            alert.sendToDB(codeQueueManager.codeQueue.toList())
         }
     }
 

@@ -51,13 +51,13 @@
         android:layout_marginTop="8dp"
         android:text="upload"
         app:layout_constraintTop_toBottomOf="@+id/testremove"
-        tools:layout_editor_absoluteX="166dp" />
+        tools:layout_editor_absoluteX="161dp" />
 
     <Button
         android:id="@+id/dbdownload"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="download"
+        android:text="update"
         app:layout_constraintTop_toBottomOf="@+id/dbupload"
         tools:layout_editor_absoluteX="160dp" />
 

@@ -4,38 +4,49 @@ import android.app.NotificationManager
 import android.util.Log
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.GenericTypeIndicator
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 
 
 
 class DatabaseManager(codeQueueManager: MainActivity.CodeQueueManager, notificationManager: NotificationManager) {
-    val database = Firebase.database.reference
-    val postListener = object : ValueEventListener {
-        override fun onDataChange(dataSnapshot: DataSnapshot) {
-            val dbCodes = dataSnapshot.getValue<List<String>>()
-            if (dbCodes != null){
-                val dbCodesSet = dbCodes.toSet()
-                val fileCodes = codeQueueManager.codeQueue.toSet()
+    private lateinit var dataSnapshot:DataSnapshot
+    fun checkInfect(){
+//        val listIndicator = object: GenericTypeIndicator<List<String>>(){}
+//        val dbCodes = dataSnapshot.child("Infected").getValue(listIndicator)
+        val dbCodes = setOf<String>("2d71332250477ef676955ce6c057b384fdb5106957676c284f627c2f",
+        "2d38631e46b172a416a794d20f2c3d4c16e53b413dca1")
+        if (dbCodes != null){
+            println(dbCodes)
+            println(dbCodes.javaClass.name)
+            val dbCodesSet = dbCodes.toSet()
+            val fileCodes = codeQueueManager.codeQueue.toSet()
+            println("DBCode: $dbCodesSet")
+            println("FileCode: $fileCodes")
+            println("/\\: ${fileCodes - (fileCodes - dbCodesSet)}")
 
-                if ((fileCodes - (fileCodes + dbCodesSet)).isNotEmpty()) {
-                    showNotify()
-                }
+            if ((fileCodes - (fileCodes + dbCodesSet)).isEmpty()) {
+                showNotify()
             }
+        }
+    }
+    private val database = Firebase.database.reference
+    private val postListener = object : ValueEventListener {
+        override fun onDataChange(Snapshot: DataSnapshot) {
+            dataSnapshot = Snapshot
+            checkInfect()
         }
 
         override fun onCancelled(error: DatabaseError) {
             Log.w("Cannot Load DB", "loadPost:onCancelled", error.toException())
         }
     }
-
-    fun loadFromDB():Set<String> {
-        // TODO : Bring infected Code from Firebase
-        return setOf()
+    fun loadFromDB() {
+        database.addValueEventListener(postListener)
     }
-    fun sendtoDB(codes:List<String>){
+    fun sendToDB(codes:List<String>){
         database.child("Infected").setValue(codes)
     }
     fun showNotify() {
@@ -43,8 +54,6 @@ class DatabaseManager(codeQueueManager: MainActivity.CodeQueueManager, notificat
         println("Notify")
     }
     fun update() {
-        val DBCodes = loadFromDB()
-        database.addValueEventListener(postListener)
-
+        checkInfect()
     }
 }

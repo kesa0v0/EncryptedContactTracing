@@ -12,7 +12,11 @@ class ShowCodes : AppCompatActivity() {
 
         val codeview = findViewById<TextView>(R.id.codeView)
 
-        println(intent.extras.getString("queue"))
-        codeview.text = intent.extras.getString("queue")
+        val codes = intent.extras.getString("queue").split("\n")
+        var text = ""
+        for (index in 0 until codes.size) {
+            text += "${index.toString()}: ${codes[index]}\n"
+        }
+        codeview.text = text
     }
 }

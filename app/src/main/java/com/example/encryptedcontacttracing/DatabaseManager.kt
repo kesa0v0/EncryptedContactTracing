@@ -4,9 +4,11 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.GenericTypeIndicator
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
@@ -26,10 +28,8 @@ class DatabaseManager(private val context: Context) {
         }
     }
     fun checkInfect(){
-//        val listIndicator = object: GenericTypeIndicator<List<String>>(){}
-//        val dbCodes = dataSnapshot.child("Infected").getValue(listIndicator)
-        val dbCodes = setOf<String>("2d71332250477ef676955ce6c057b384fdb5106957676c284f627c2f",
-        "2d38631e46b172a416a794d20f2c3d4c16e53b413dca1")
+        val listIndicator = object: GenericTypeIndicator<List<String>>(){}
+        val dbCodes = dataSnapshot.child("Infected").getValue(listIndicator)
         if (dbCodes != null){
             val dbCodesSet = dbCodes.toSet()
             val fileCodes = codeQueueManager.codeQueue.toSet()
@@ -37,6 +37,8 @@ class DatabaseManager(private val context: Context) {
 
             if (intersection.isNotEmpty()) {
                 showNotify()
+            } else {
+                Toast.makeText(context, "없음", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -45,6 +47,7 @@ class DatabaseManager(private val context: Context) {
     }
     fun sendToDB(codes:List<String>){
         database.child("Infected").setValue(codes)
+        Toast.makeText(context, "Sent", Toast.LENGTH_SHORT).show()
     }
     fun update() {
         checkInfect()

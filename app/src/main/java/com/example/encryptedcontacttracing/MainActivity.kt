@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.google.zxing.integration.android.IntentIntegrator
@@ -16,6 +17,7 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
 import java.io.InputStreamReader
+import java.lang.NumberFormatException
 import java.security.MessageDigest
 import java.util.*
 import kotlin.experimental.and
@@ -41,9 +43,10 @@ class MainActivity : AppCompatActivity() {
         fun addItems(itemList:MutableList<String>) {
             for (item in itemList) {
                 codeQueue.offer(item)
-                if (codeQueue.size > 4032) {
+                while (codeQueue.size > 4032) {
                     codeQueue.poll()
-                }
+                } // 4032
+                println(codeQueue.size)
             }
             codeQueueManager.saveCodestoFile()
         }
@@ -77,6 +80,7 @@ class MainActivity : AppCompatActivity() {
             while (codeQueue.size > 0) {
                 codeQueue.remove()
             }
+            saveCodestoFile()
         }
     }
 
@@ -103,21 +107,17 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnGetQR.setOnClickListener {
-            //            val data = qrScanIntegrator.initiateScan()
-            timer.startTime = System.currentTimeMillis()
-            timer.placeCode = 1234
-            notifyRecording()
-            // TODO: DeleteThese
+            val data = qrScanIntegrator.initiateScan()
         }
         btnViewCodes.setOnClickListener {
             val showCodesActivityIntent = Intent(this, ShowCodes::class.java)
                 .putExtra("queue", codeQueueManager.codeQueue.joinToString("\n"))
-            println(codeQueueManager.codeQueue.joinToString("\n"))
             startActivity(showCodesActivityIntent)
         }
 
         testremove.setOnClickListener{
             codeQueueManager.clearQueue()
+            Toast.makeText(this, "Cleared", Toast.LENGTH_SHORT).show()
         }
         testdownload.setOnClickListener{
             alert.update()
@@ -132,9 +132,14 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == IntentIntegrator.REQUEST_CODE) {
             val result: IntentResult =
                 IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
+            try {
             timer.startTime = System.currentTimeMillis()
             timer.placeCode = result.contents.toLong()
             notifyRecording()
+            } catch (e: NumberFormatException) {
+                val toastText = "올바르지 않은 QR코드입니다"
+                Toast.makeText(this, toastText, Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -174,7 +179,7 @@ class StopRecordingBroadcastReceiver : BroadcastReceiver() {
 
 class StopRecording{
     fun stopRecording(notificationManager:NotificationManager) {
-        notificationManager.cancel(1234)
+        notificationManager.cancel(10001)
         timer.endTime = System.currentTimeMillis()
         val timeInterval = 1000//300000
 

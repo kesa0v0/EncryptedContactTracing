@@ -29,7 +29,7 @@ class RecordTime {
 
 private val timer = RecordTime()
 
-private lateinit var notificationManager:NotificationManager
+lateinit var notificationManager:NotificationManager
 lateinit var codeQueueManager:MainActivity.CodeQueueManager
 
 
@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity() {
 
         codeQueueManager = CodeQueueManager()
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val alert = DatabaseManager(codeQueueManager, notificationManager)
+        val alert = DatabaseManager(this)
         alert.loadFromDB()
 
         if (codeQueueManager.codeQueue.size == 0) {
@@ -141,25 +141,25 @@ class MainActivity : AppCompatActivity() {
     private fun notifyRecording() {
         val notificationIntent = Intent(this, MainActivity::class.java)
         notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
+        val notificationpendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
 
         val stopRecordingIntent = Intent(this, StopRecordingBroadcastReceiver::class.java)
         val stopRecordingPendingIntent: PendingIntent =
             PendingIntent.getBroadcast(this, 0, stopRecordingIntent, 0)
 
-        val builder = NotificationCompat.Builder(this, "10001")
+        val notificationBuilder = NotificationCompat.Builder(this, "10001")
             .setSmallIcon(R.drawable.ic_launcher_background)
             .setContentTitle("다중이용시설에 있습니다")
             .setContentText("다중이용시설에 있습니다. 나가실 때 꺼주세요.")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(notificationpendingIntent)
             .setOngoing(true)
             .addAction(R.drawable.ic_launcher_background, "STOP", stopRecordingPendingIntent)
 
-        val channel = NotificationChannel("10001", "Test", NotificationManager.IMPORTANCE_HIGH)
+        val channel = NotificationChannel("10001", "CovidNotification", NotificationManager.IMPORTANCE_HIGH)
         notificationManager.createNotificationChannel(channel)
 
-        notificationManager.notify(1234, builder.build())
+        notificationManager.notify(10001, notificationBuilder.build())
 
     }
 }

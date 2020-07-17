@@ -34,9 +34,6 @@ class DatabaseManager(private val context: Context) {
             val dbCodesSet = dbCodes.toSet()
             val fileCodes = codeQueueManager.codeQueue.toSet()
             val intersection = fileCodes - (fileCodes - dbCodesSet)
-            println("DBCode: $dbCodesSet")
-            println("FileCode: $fileCodes")
-            println("/\\: $intersection")
 
             if (intersection.isNotEmpty()) {
                 showNotify()
@@ -53,15 +50,12 @@ class DatabaseManager(private val context: Context) {
         checkInfect()
     }
     private fun showNotify() {
-        // TODO : Show Notification
-        println("Notify")
-
         val quarantineBuilder = NotificationCompat.Builder(context, "10001")
             .setSmallIcon(R.drawable.ic_launcher_background)
             .setContentTitle("자가격리 대상자.")
             .setContentText("자가격리 대상자입니다. 보건소로 연락하세요")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setOngoing(true)
+//            .setOngoing(true)
 
         val channel = NotificationChannel("10002", "Quarantine", NotificationManager.IMPORTANCE_HIGH)
         notificationManager.createNotificationChannel(channel)

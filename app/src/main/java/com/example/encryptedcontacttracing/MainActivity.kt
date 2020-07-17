@@ -64,7 +64,6 @@ class MainActivity : AppCompatActivity() {
             val myFile = File(filename)
             if (myFile.exists()) {
                 myFile.delete()
-                println ("deleted file")
             }
             try {
                 val os = openFileOutput(filename, Context.MODE_PRIVATE)
@@ -113,6 +112,7 @@ class MainActivity : AppCompatActivity() {
         btnViewCodes.setOnClickListener {
             val showCodesActivityIntent = Intent(this, ShowCodes::class.java)
                 .putExtra("queue", codeQueueManager.codeQueue.joinToString("\n"))
+            println(codeQueueManager.codeQueue.joinToString("\n"))
             startActivity(showCodesActivityIntent)
         }
 
@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity() {
     private fun notifyRecording() {
         val notificationIntent = Intent(this, MainActivity::class.java)
         notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        val notificationpendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
+        val notificationPendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
 
         val stopRecordingIntent = Intent(this, StopRecordingBroadcastReceiver::class.java)
         val stopRecordingPendingIntent: PendingIntent =
@@ -152,7 +152,7 @@ class MainActivity : AppCompatActivity() {
             .setContentTitle("다중이용시설에 있습니다")
             .setContentText("다중이용시설에 있습니다. 나가실 때 꺼주세요.")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setContentIntent(notificationpendingIntent)
+            .setContentIntent(notificationPendingIntent)
             .setOngoing(true)
             .addAction(R.drawable.ic_launcher_background, "STOP", stopRecordingPendingIntent)
 
@@ -168,7 +168,6 @@ val stop = StopRecording()
 
 class StopRecordingBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        println("testing")
         stop.stopRecording(notificationManager)
     }
 }
@@ -178,7 +177,6 @@ class StopRecording{
         notificationManager.cancel(1234)
         timer.endTime = System.currentTimeMillis()
         val timeInterval = 1000//300000
-        println("start:${timer.startTime/timeInterval}\nend:${timer.endTime/timeInterval}")
 
         val result = generateCodes(
             timer.startTime / timeInterval,
@@ -193,7 +191,6 @@ class StopRecording{
         for (time in startTime..endTime) {
             val code = getEncrypt((time*placeCode).toString())
             codelist.add(code)
-            println("time:$time\ncode:$code")
         }
         return codelist
     }

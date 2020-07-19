@@ -29,7 +29,17 @@ import kotlin.experimental.and
 class RecordTime {
     var startTime = System.currentTimeMillis()
     var endTime = System.currentTimeMillis()
-    var placeCode:Long = 0
+    var placeCode:String = ""
+
+    fun getEncrypt(target:String) : String {
+        val md = MessageDigest.getInstance("SHA-256")
+        val digest = md.digest(target.toByteArray())
+        val sb = StringBuilder()
+        for (i in digest.indices) {
+            sb.append(((digest[i] and 0xff.toByte()) + 0x100).toString(16).substring(1))
+        }
+        return sb.toString()
+    }
 }
 
 private val timer = RecordTime()
@@ -94,7 +104,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        codebtnGetQR = findViewById<Button>(R.id.btnGetQR)
+        codebtnGetQR = findViewById(R.id.btnGetQR)
         btnGetQR
         val btnViewCodes = findViewById<Button>(R.id.btnViewCodes)
         val testremove = findViewById<Button>(R.id.testremove)
@@ -148,7 +158,7 @@ class MainActivity : AppCompatActivity() {
                 IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
             try {
                 timer.startTime = System.currentTimeMillis()
-                timer.placeCode = result.contents.toLong()
+                timer.placeCode = timer.getEncrypt(result.contents)
                 notifyRecording()
                 box.setBackgroundColor(Color.rgb(114,137,218))
 
@@ -213,22 +223,12 @@ class StopRecording{
         codebtnGetQR.text = "QR코드 찍기"
     }
 
-    private fun generateCodes(startTime:Long, endTime:Long, placeCode:Long): MutableList<String> {
+    private fun generateCodes(startTime:Long, endTime:Long, placeCode:String): MutableList<String> {
         val codelist = mutableListOf<String>()
         for (time in startTime..endTime) {
-            val code = getEncrypt((time*placeCode).toString())
+            val code = timer.getEncrypt(placeCode+time.toString())
             codelist.add(code)
         }
         return codelist
-    }
-
-    private fun getEncrypt(target:String) : String{
-        val md = MessageDigest.getInstance("SHA-256")
-        val digest = md.digest(target.toByteArray())
-        val sb = StringBuilder()
-        for (i in digest.indices) {
-            sb.append(((digest[i] and 0xff.toByte()) + 0x100).toString(16).substring(1))
-        }
-        return sb.toString()
     }
 }
